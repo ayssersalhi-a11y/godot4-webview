@@ -1,24 +1,25 @@
+
 #!/usr/bin/env just --justfile
 
 # تحديد نظام التشغيل والهدف الافتراضي
 os := if os() == "macos" { "macos" } else if os() == "windows" { "windows" } else if os() == "android" { "android" } else { "linux" }
-target := if os == "macos" { arch() + "-apple-darwin" } else if os() == "windows" { arch() + "-pc-windows-msvc" } else if os() == "android" { arch() + "-linux-android" } else { arch() + "-unknown-linux-gnu" }
+target := if os == "macos" { arch() + "-apple-darwin" } else if os == "windows" { arch() + "-pc-windows-msvc" } else if os == "android" { arch() + "-linux-android" } else { arch() + "-unknown-linux-gnu" }
 
 default: build
 
 set working-directory := 'rust'
 
-# مهمة البناء الذكية
+# مهمة البناء الذكية التي تقبل أي target وتوجهها للمهمة الصحيحة
 build target_override="":
 	@echo "Building for {{os}} ({{if target_override == "" { target } else { target_override }}})..."
-	@if [ "{{os}}" = "android" ]; then just _build-android "{{if target_override == "" { target } else { target_override }}}"; \
+	@if [ "{{os}}" = "android" ]; then just _build-android; \
 	elif [ "{{os}}" = "windows" ]; then just _build-windows; \
 	elif [ "{{os}}" = "macos" ]; then just _build-macos; \
-	else just _build-linux "{{if target_override == "" { target } else { target_override }}}"; fi
-	@if [ "{{os}}" = "android" ]; then just _copy-to-godot-android "{{if target_override == "" { target } else { target_override }}}"; \
+	else just _build-linux; fi
+	@if [ "{{os}}" = "android" ]; then just _copy-to-godot-android; \
 	elif [ "{{os}}" = "windows" ]; then just _copy-to-godot-windows; \
 	elif [ "{{os}}" = "macos" ]; then just _copy-to-godot-macos; \
-	else just _copy-to-godot-linux "{{if target_override == "" { target } else { target_override }}}"; fi
+	else just _copy-to-godot-linux; fi
 
 copy-to-godot: build
 	@echo "Copying files to Godot project..."
@@ -34,29 +35,29 @@ _build-macos:
 	mv ./target/{{target}}/release/libgodot_wry.dylib ./target/{{target}}/release/libgodot_wry.framework/libgodot_wry.dylib
 	cp ../assets/Info.plist ./target/{{target}}/release/libgodot_wry.framework/Resources/Info.plist
 
-_build-linux target:
+_build-linux:
 	cargo build --target {{target}} --release
 
 _build-windows:
 	cargo build --release
 
-_build-android target:
+_build-android:
 	cargo build --target {{target}} --release
 
-# مهام النسخ المنفصلة (تم توحيد المسارات لتطابق توقعات GitHub Actions)
+# مهام النسخ المنفصلة
 _copy-to-godot-macos:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp -R ./target/{{target}}/release/libgodot_wry.framework ../godot/addons/godot_wry/bin/{{target}}
 
-_copy-to-godot-linux target:
+_copy-to-godot-linux:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp ./target/{{target}}/release/libgodot_wry.so ../godot/addons/godot_wry/bin/{{target}}/
 
 _copy-to-godot-windows:
-	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
-	cp ./target/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
+    mkdir -p ../godot/addons/godot_wry/bin/{{target}}
+    cp ./target/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
 
-_copy-to-godot-android target:
+_copy-to-godot-android:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp ./target/{{target}}/release/libgodot_wry.so ../godot/addons/godot_wry/bin/{{target}}/
 
