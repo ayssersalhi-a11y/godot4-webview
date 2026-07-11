@@ -28,14 +28,16 @@ pub extern "system" fn Java_org_godotengine_godot_GodotLib_initWebView(
 pub fn get_android_activity() -> Option<JObject<'static>> {
     let activity_store = ANDROID_ACTIVITY.lock().unwrap();
     
-    // نقوم بفك الـ Option والوصول إلى الـ GlobalRef
-    // ثم نرجع الـ JObject الخاص بها
+    // الحل: بدلاً من استخدام as_obj() التي ترجع مرجعاً، 
+    // سنقوم بإنشاء JObject جديد من نفس المؤشر الداخلي.
     if let Some(global_ref) = &*activity_store {
-        Some(global_ref.as_obj())
+        let ptr = global_ref.as_obj().as_raw(); // نأخذ المؤشر الخام
+        Some(unsafe { JObject::from_raw(ptr) }) // نعيد بناء JObject كقيمة
     } else {
         None
     }
 }
+
 
 pub fn init_android_webview() {
     godot_print!("Android WebView system initialized and ready to bridge.");
