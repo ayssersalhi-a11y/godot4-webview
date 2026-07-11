@@ -2,6 +2,9 @@ use godot::classes::display_server::HandleType;
 use godot::classes::DisplayServer;
 use raw_window_handle::{HandleError, HasWindowHandle, RawWindowHandle, WindowHandle};
 
+#[cfg(target_os = "android")]
+use raw_window_handle::AndroidNdkWindowHandle;
+
 #[cfg(target_os = "windows")]
 use {
     std::num::{NonZero, NonZeroIsize},
@@ -108,6 +111,30 @@ impl HasWindowHandle for GodotWindow {
             Ok(WindowHandle::borrow_raw(
                 RawWindowHandle::Xlib(XlibWindowHandle::new({
                     window_xid as c_ulong
+                }))
+            ))
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    fn window_handle(&self) -> Result<WindowHandle<'_>, HandleError> {
+        let display_server = DisplayServer::singleton();
+        let window_handle = display_server
+            .window_get_native_handle_ex(HandleType::WINDOW_HANDLE)
+            .window_id(self.window_id)
+            .done();
+        
+        if window_handle == 0 {
+            return Err(HandleError::new(
+                raw_window_handle::HandleError::Unavailable,
+            ));
+        }
+
+        unsafe {
+            Ok(WindowHandle::borrow_raw(
+                RawWindowHandle::AndroidNdk(AndroidNdkWindowHandle::new({
+                    std::ptr::NonNull::new(window_handle as *mut _)
+                        .expect("Invalid Android window handle")
                 }))
             ))
         }
