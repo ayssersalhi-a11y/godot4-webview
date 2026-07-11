@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [lib]
-# يجب أن تكون cdylib ليعرف Godot أنها مكتبة ديناميكية (Dynamic Library)
 crate-type = ["cdylib"]
 
 [dependencies]
@@ -25,7 +24,6 @@ x11-dl = "2.21.0"
 windows = { version = "0.61.1", features = ["Win32", "Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_System_Registry", "Win32_System_Diagnostics_Etw"]}
 
 # --- إعدادات أندرويد ---
-# عند البناء للأندرويد، قد تحتاج مستقبلاً لإضافة مكتبة ndk-glue هنا
-# أو أي تعاملات خاصة بـ JNI إذا تطلب الأمر
 [target.'cfg(target_os = "android")'.dependencies]
-# حالياً نتركها فارغة، وسنضيف ما يلزم عند الحاجة
+jni = "0.21.1"
+ndk = "0.9.0"
