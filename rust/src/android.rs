@@ -5,7 +5,6 @@ use std::sync::Mutex;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    // نقوم بتخزين الـ Activity لكي نستخدمها لاحقاً عند بناء الـ WebView
     static ref ANDROID_ACTIVITY: Mutex<Option<JObject<'static>>> = Mutex::new(None);
 }
 
@@ -17,18 +16,22 @@ pub extern "system" fn Java_org_godotengine_godot_GodotLib_initWebView(
 ) {
     godot_print!("Android WebView: Activity received!");
     
-    // نقوم بحفظ الـ Activity لاستخدامها لاحقاً
-    // ملاحظة: نحتاج لتحويل الـ GlobalRef لضمان بقاء الكائن في الذاكرة
     if let Ok(global_ref) = env.new_global_ref(activity) {
         let mut activity_store = ANDROID_ACTIVITY.lock().unwrap();
-        *activity_store = Some(global_ref.as_obj());
+        
+        // التعديل هنا: استخدمنا clone() للحصول على نسخة من الـ JObject 
+        // لتتوافق مع النوع المتوقع في الـ Option
+        *activity_store = Some(global_ref.as_obj().clone());
         godot_print!("Android WebView: Activity stored successfully.");
     }
 }
 
 pub fn get_android_activity() -> Option<JObject<'static>> {
     let activity_store = ANDROID_ACTIVITY.lock().unwrap();
-    *activity_store
+    
+    // التعديل هنا: لا يمكننا "سحب" القيمة مباشرة من الـ Mutex (لأنها ليست Copy)
+    // لذا نقوم بعمل clone للـ Option (التي تحتوي على الـ JObject)
+    activity_store.clone()
 }
 
 pub fn init_android_webview() {
