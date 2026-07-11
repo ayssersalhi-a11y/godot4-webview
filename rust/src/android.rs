@@ -1,21 +1,36 @@
-// src/android.rs
 use godot::prelude::*;
 use jni::objects::{JClass, JObject};
 use jni::JNIEnv;
+use std::sync::Mutex;
+use lazy_static::lazy_static;
 
-// هذا الكود هو المسؤول عن استقبال الـ Context من Godot عبر JNI
+lazy_static! {
+    // نقوم بتخزين الـ Activity لكي نستخدمها لاحقاً عند بناء الـ WebView
+    static ref ANDROID_ACTIVITY: Mutex<Option<JObject<'static>>> = Mutex::new(None);
+}
+
 #[no_mangle]
 pub extern "system" fn Java_org_godotengine_godot_GodotLib_initWebView(
-    env: JNIEnv,
+    mut env: JNIEnv,
     _class: JClass,
     activity: JObject,
 ) {
     godot_print!("Android WebView: Activity received!");
     
-    // هنا سنقوم لاحقاً بتمرير الـ Activity إلى مكتبة Wry
-    // لاستخدامها في بناء WebView
+    // نقوم بحفظ الـ Activity لاستخدامها لاحقاً
+    // ملاحظة: نحتاج لتحويل الـ GlobalRef لضمان بقاء الكائن في الذاكرة
+    if let Ok(global_ref) = env.new_global_ref(activity) {
+        let mut activity_store = ANDROID_ACTIVITY.lock().unwrap();
+        *activity_store = Some(global_ref.as_obj());
+        godot_print!("Android WebView: Activity stored successfully.");
+    }
+}
+
+pub fn get_android_activity() -> Option<JObject<'static>> {
+    let activity_store = ANDROID_ACTIVITY.lock().unwrap();
+    *activity_store
 }
 
 pub fn init_android_webview() {
-    godot_print!("Android WebView initialized!");
+    godot_print!("Android WebView system initialized and ready to bridge.");
 }
