@@ -125,9 +125,8 @@ impl HasWindowHandle for GodotWindow {
             .done();
         
         if window_handle == 0 {
-            return Err(HandleError::new(
-                raw_window_handle::HandleError::Unavailable,
-            ));
+            // التصحيح: في الإصدارات الحديثة، نقوم بإرجاع الخطأ هكذا مباشرة
+            return Err(HandleError);
         }
 
         unsafe {
