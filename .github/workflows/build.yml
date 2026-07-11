@@ -71,6 +71,10 @@ jobs:
 
       - name: Build binaries
         shell: bash
+        env:
+          # نحدد الـ Linker الخاص بـ Android لضمان استخدام clang الصحيح لكل معمارية
+          CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER: aarch64-linux-android34-clang
+          CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER: armv7a-linux-androideabi34-clang
         run: |
           TARGET="${{ matrix.platform.target }}"
           
@@ -87,6 +91,7 @@ jobs:
             just _build-linux $TARGET
             just _copy-to-godot-linux $TARGET
           fi
+
 
 
 
