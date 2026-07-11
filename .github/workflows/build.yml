@@ -8,7 +8,6 @@ on:
     types: [opened, synchronize, reopened]
     branches: main
 
-
 name: 🤖 GDExtension
 
 jobs:
@@ -26,18 +25,30 @@ jobs:
           - os-name: 🪟 Windows (64-bit)
             runs-on: windows-latest
             target: x86_64-pc-windows-msvc
+          - os-name: 🤖 Android (arm64)
+            runs-on: ubuntu-latest
+            target: aarch64-linux-android
+          - os-name: 🤖 Android (arm32)
+            runs-on: ubuntu-latest
+            target: armv7-linux-androideabi
     runs-on: ${{ matrix.platform.runs-on }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Linux dependencies
-        if: ${{ matrix.platform.runs-on == 'ubuntu-latest' }}
+        if: ${{ matrix.platform.runs-on == 'ubuntu-latest' && !contains(matrix.platform.target, 'android') }}
         run: sudo apt-get update && sudo apt-get install -y libgtk-3-dev libsoup-3.0-dev libwebkit2gtk-4.1-dev build-essential curl wget file libssl-dev libayatana-appindicator3-dev librsvg2-dev libjavascriptcoregtk-4.1-dev
+
+      - name: Install Android NDK
+        if: ${{ contains(matrix.platform.target, 'android') }}
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26b
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        if: ${{ matrix.platform.runs-on != 'windows-latest' }} # Windows uses the system Rust
+        if: ${{ matrix.platform.runs-on != 'windows-latest' }}
         with:
           targets: ${{ matrix.platform.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.platform.target }}
 
@@ -45,7 +56,7 @@ jobs:
         uses: extractions/setup-just@v1
 
       - name: Build binaries
-        run: just ${{ matrix.platform.target == 'universal-apple-darwin' && 'build-macos-universal' || 'build' }}
+        run: just ${{ matrix.platform.target == 'universal-apple-darwin' && 'build-macos-universal' || 'build' }} ${{ matrix.platform.target }}
 
       - name: Code sign and notarize library
         if: ${{ matrix.platform.runs-on == 'macos-latest' && github.ref == 'refs/heads/main' }}
@@ -90,5 +101,3 @@ jobs:
         with:
           name: godot_wry
           path: package
-
-  #TODO: release:
