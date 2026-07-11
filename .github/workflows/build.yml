@@ -73,15 +73,9 @@ jobs:
       - name: Build binaries
         shell: bash
         run: |
-          if [[ "${{ matrix.platform.target }}" == *"android"* ]]; then
-            just os=android target=${{ matrix.platform.target }} build
-          elif [[ "${{ matrix.platform.target }}" == *"windows"* ]]; then
-            just os=windows target=${{ matrix.platform.target }} build
-          elif [[ "${{ matrix.platform.target }}" == "universal-apple-darwin" ]]; then
-            just build-macos-universal
-          else
-            just os=linux target=${{ matrix.platform.target }} build
-          fi
+          # نمرر الـ target مباشرة كمتغير للـ justfile
+          just target=${{ matrix.platform.target }} build
+
 
       - name: Code sign and notarize library
         if: ${{ false }} # هذا التعديل سيجعل النظام يتجاهل هذه الخطوة ويُكمل العمل
@@ -120,6 +114,10 @@ jobs:
         run: |
           mkdir -p package/godot_wry
           mv godot/addons package/godot_wry
+
+      - name: Debug paths
+        run: ls -R godot/addons/godot_wry/bin/
+        
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
