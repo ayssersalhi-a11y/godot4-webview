@@ -1,7 +1,7 @@
 #!/usr/bin/env just --justfile
 
-os := if os() == "macos" { "macos" } else if os() == "windows" { "windows" } else { "linux" }
-target := if os == "macos" { arch() + "-apple-darwin" } else if os == "windows" { arch() + "-pc-windows-msvc" } else { arch() + "-unknown-linux-gnu" }
+os := if os() == "macos" { "macos" } else if os() == "windows" { "windows" } else if os() == "android" { "android" } else { "linux" }
+target := if os == "macos" { arch() + "-apple-darwin" } else if os == "windows" { arch() + "-pc-windows-msvc" } else if os == "android" { arch() + "-linux-android" } else { arch() + "-unknown-linux-gnu" }
 
 default: build
 
@@ -31,6 +31,9 @@ _build-linux:
 _build-windows:
 	cargo build --target {{target}} --locked --release
 
+_build-android:
+	cargo build --target {{target}} --locked --release
+
 _copy-to-godot-macos:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp -R ./target/{{target}}/release/libgodot_wry.framework ../godot/addons/godot_wry/bin/{{target}}
@@ -42,6 +45,10 @@ _copy-to-godot-linux:
 _copy-to-godot-windows:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp ./target/{{target}}/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
+
+_copy-to-godot-android:
+	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
+	cp ./target/{{target}}/release/libgodot_wry.so ../godot/addons/godot_wry/bin/{{target}}/
 
 build-all: build-macos-universal build-linux build-windows
 
@@ -63,3 +70,7 @@ build-linux:
 build-windows:
 	@echo "Building for Windows..."
 	just os="windows" build
+
+build-android:
+	@echo "Building for Android..."
+	just os="android" target="aarch64-linux-android" build
