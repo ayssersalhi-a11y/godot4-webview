@@ -35,14 +35,15 @@ _build-macos:
 	mv ./target/{{target}}/release/libgodot_wry.dylib ./target/{{target}}/release/libgodot_wry.framework/libgodot_wry.dylib
 	cp ../assets/Info.plist ./target/{{target}}/release/libgodot_wry.framework/Resources/Info.plist
 
-_build-linux:
-	cargo build --target {{target}} --release
+_build-linux target:
+    cargo build --target {{target}} --release
 
-_build-windows:
-	cargo build --release
+_build-windows target:
+    cargo build --target {{target}} --release
 
-_build-android:
-	cargo build --target {{target}} --release
+_build-android target:
+    cargo build --target {{target}} --release
+
 
 # مهام النسخ المنفصلة
 _copy-to-godot-macos target:
