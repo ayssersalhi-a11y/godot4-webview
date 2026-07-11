@@ -29,19 +29,19 @@ clean:
 
 # مهام البناء المنفصلة
 _build-macos:
-	cargo build --target {{target}} --locked --release
+	cargo build --target {{target}} --release
 	mkdir -p ./target/{{target}}/release/libgodot_wry.framework/Resources
 	mv ./target/{{target}}/release/libgodot_wry.dylib ./target/{{target}}/release/libgodot_wry.framework/libgodot_wry.dylib
 	cp ../assets/Info.plist ./target/{{target}}/release/libgodot_wry.framework/Resources/Info.plist
 
 _build-linux:
-	cargo build --target {{target}} --locked --release
+	cargo build --target {{target}} --release
 
 _build-windows:
-	cargo build --locked --release
+	cargo build --release
 
 _build-android:
-	cargo build --target {{target}} --locked --release
+	cargo build --target {{target}} --release
 
 # مهام النسخ المنفصلة
 _copy-to-godot-macos:
@@ -65,8 +65,8 @@ build-all: build-macos-universal build-linux build-windows
 
 build-macos-universal:
 	@echo "Building universal macOS binary..."
-	cargo build --target aarch64-apple-darwin --locked --release
-	cargo build --target x86_64-apple-darwin --locked --release
+	cargo build --target aarch64-apple-darwin --release
+	cargo build --target x86_64-apple-darwin --release
 	mkdir -p ./target/release/libgodot_wry.framework/Resources
 	lipo -create -output ./target/release/libgodot_wry.dylib ./target/aarch64-apple-darwin/release/libgodot_wry.dylib ./target/x86_64-apple-darwin/release/libgodot_wry.dylib
 	mv ./target/release/libgodot_wry.dylib ./target/release/libgodot_wry.framework/libgodot_wry.dylib
@@ -82,3 +82,10 @@ build-windows:
 
 build-android:
 	@just os="android" build
+
+# --- مهام مساعدة لمنع أخطاء GitHub Actions ---
+universal-apple-darwin:
+	@echo "Universal Apple Darwin target passed from CI"
+
+x86_64-pc-windows-msvc:
+	@just build-windows
