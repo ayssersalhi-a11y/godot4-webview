@@ -55,8 +55,8 @@ _copy-to-godot-linux target:
 	cp ./target/{{target}}/release/libgodot_wry.so ../godot/addons/godot_wry/bin/{{target}}/
 
 _copy-to-godot-windows target:
-	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
-	cp ./target/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
+    mkdir -p ../godot/addons/godot_wry/bin/{{target}}
+    cp ./target/{{target}}/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
 
 _copy-to-godot-android target:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
