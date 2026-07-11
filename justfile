@@ -45,19 +45,19 @@ _build-android:
 	cargo build --target {{target}} --release
 
 # مهام النسخ المنفصلة
-_copy-to-godot-macos:
+_copy-to-godot-macos target:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp -R ./target/{{target}}/release/libgodot_wry.framework ../godot/addons/godot_wry/bin/{{target}}
 
-_copy-to-godot-linux:
+_copy-to-godot-linux target:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp ./target/{{target}}/release/libgodot_wry.so ../godot/addons/godot_wry/bin/{{target}}/
 
-_copy-to-godot-windows:
-    mkdir -p ../godot/addons/godot_wry/bin/{{target}}
-    cp ./target/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
+_copy-to-godot-windows target:
+	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
+	cp ./target/release/godot_wry.dll ../godot/addons/godot_wry/bin/{{target}}/
 
-_copy-to-godot-android:
+_copy-to-godot-android target:
 	mkdir -p ../godot/addons/godot_wry/bin/{{target}}
 	cp ./target/{{target}}/release/libgodot_wry.so ../godot/addons/godot_wry/bin/{{target}}/
 
