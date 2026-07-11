@@ -2,6 +2,9 @@
 mod macros;
 mod godot_window;
 mod protocols;
+#[cfg(target_os = "android")]
+mod android;
+
 
 use godot::global::MouseButtonMask;
 use godot::init::*;
