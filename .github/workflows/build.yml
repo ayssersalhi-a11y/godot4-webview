@@ -69,12 +69,25 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@v1
 
-      # --- هذا هو الجزء الصحيح والمحدث ---
       - name: Build binaries
         shell: bash
         run: |
-          # نمرر الـ target مباشرة كمتغير للـ justfile
-          just target=${{ matrix.platform.target }} build
+          TARGET="${{ matrix.platform.target }}"
+          
+          if [[ "$TARGET" == *"android"* ]]; then
+            just _build-android $TARGET
+            just _copy-to-godot-android $TARGET
+          elif [[ "$TARGET" == *"windows"* ]]; then
+            just _build-windows $TARGET
+            just _copy-to-godot-windows $TARGET
+          elif [[ "$TARGET" == "universal-apple-darwin" ]]; then
+            just build-macos-universal
+          else
+            # للحالات الافتراضية مثل Linux
+            just _build-linux $TARGET
+            just _copy-to-godot-linux $TARGET
+          fi
+
 
 
       - name: Code sign and notarize library
