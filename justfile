@@ -1,3 +1,4 @@
+set shell := ["/bin/sh", "-c"]
 
 #!/usr/bin/env just --justfile
 
@@ -35,14 +36,15 @@ _build-macos:
 	mv ./target/{{target}}/release/libgodot_wry.dylib ./target/{{target}}/release/libgodot_wry.framework/libgodot_wry.dylib
 	cp ../assets/Info.plist ./target/{{target}}/release/libgodot_wry.framework/Resources/Info.plist
 
+# تأكد أن هذه المهمة تبدأ بـ Tab
 _build-linux target:
-    cargo build --target {{target}} --release
+	cargo build --target {{target}} --release
 
 _build-windows target:
-    cargo build --target {{target}} --release
+	cargo build --target {{target}} --release
 
 _build-android target:
-    cargo build --target {{target}} --release
+	cargo build --target {{target}} --release
 
 
 # مهام النسخ المنفصلة
