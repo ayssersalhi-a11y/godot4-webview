@@ -72,13 +72,17 @@ jobs:
       - name: Build binaries
         shell: bash
         env:
-          # نحدد الـ Linker الخاص بـ Android لضمان استخدام clang الصحيح لكل معمارية
+          # نحدد الـ Linker مباشرة بالاسم الذي يتوقعه Rust عند وجود الـ toolchain في الـ PATH
           CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER: aarch64-linux-android34-clang
           CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER: armv7a-linux-androideabi34-clang
+          # نقوم بإضافة مسار الـ clang الخاص بالـ NDK إلى الـ PATH لضمان العثور عليه
+          # متغير البيئة ANDROID_NDK_HOME يتم توفيره تلقائياً بواسطة nttld/setup-ndk
+          PATH: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/:${{ env.PATH }}
         run: |
           TARGET="${{ matrix.platform.target }}"
           
           if [[ "$TARGET" == *"android"* ]]; then
+            # نمرر TARGET إلى الـ justfile ليقوم هو بتنفيذ الأمر الصحيح
             just _build-android $TARGET
             just _copy-to-godot-android $TARGET
           elif [[ "$TARGET" == *"windows"* ]]; then
@@ -91,6 +95,7 @@ jobs:
             just _build-linux $TARGET
             just _copy-to-godot-linux $TARGET
           fi
+
 
 
 
