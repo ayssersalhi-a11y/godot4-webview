@@ -72,14 +72,8 @@ jobs:
       - name: Build binaries
         shell: bash
         env:
-          # تحديد الـ Shell لـ just لضمان عمله على macOS و Linux
-          JUST_SHELL: /bin/sh
-          
-          # متغيرات الـ Linker للأندرويد (تستخدم فقط عند البناء للأندرويد)
           CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER: aarch64-linux-android34-clang
           CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_LINKER: armv7a-linux-androideabi34-clang
-          
-          # إضافة مسارات الـ NDK للـ PATH لضمان عثور Cargo على الـ Linker
           PATH: ${{ env.ANDROID_NDK_HOME }}/toolchains/llvm/prebuilt/linux-x86_64/bin/:${{ env.PATH }}
         run: |
           TARGET="${{ matrix.platform.target }}"
@@ -93,7 +87,6 @@ jobs:
           elif [[ "$TARGET" == "universal-apple-darwin" ]]; then
             just build-macos-universal
           else
-            # للحالات الافتراضية مثل Linux
             just _build-linux $TARGET
             just _copy-to-godot-linux $TARGET
           fi
